@@ -295,9 +295,9 @@ export default function Dashboard() {
                 <div className="w-full">
                   <h3 className="text-lg font-semibold">{truncateText(password.title)}</h3>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-gray-800 dark:text-gray-200">Username: {password.username}</p>
+                    <p className="text-gray-800 dark:text-gray-200">Username: {truncateText(password.username.trim())}</p>
                     <button
-                      onClick={() => copyToClipboard(password.username, password.id, 'username')}
+                      onClick={() => copyToClipboard(password.username.trim(), password.id, 'username')}
                       disabled={isCopying?.id === password.id && isCopying?.field === 'username'}
                       className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
                     >

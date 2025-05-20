@@ -71,6 +71,7 @@ export default function Dashboard() {
   });
   const [showFormPassword, setShowFormPassword] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
   const filteredPasswords = passwords.filter(password => 
     password.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -207,6 +208,58 @@ export default function Dashboard() {
     }
   };
 
+  const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsImporting(true);
+      const text = await file.text();
+      const rows = text.split('\n').map(row => row.split(',').map(cell => cell.replace(/^"|"$/g, '')));
+      const headers = rows[0];
+      const data = rows.slice(1);
+
+      // Validate headers
+      const requiredHeaders = ['Title', 'Username', 'Password', 'URL', 'Created At'];
+      const hasValidHeaders = requiredHeaders.every(header => headers.includes(header));
+      if (!hasValidHeaders) {
+        throw new Error('Invalid CSV format. Required headers: Title, Username, Password, URL, Created At');
+      }
+
+      // Process each row
+      for (const row of data) {
+        if (row.length !== headers.length) continue; // Skip invalid rows
+
+        const passwordData = {
+          title: row[headers.indexOf('Title')].trim(),
+          username: row[headers.indexOf('Username')].trim(),
+          password: row[headers.indexOf('Password')].trim(),
+          url: row[headers.indexOf('URL')].trim(),
+        };
+
+        // Add password to database
+        await fetch('/api/passwords', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(passwordData),
+        });
+      }
+
+      // Refresh the password list
+      await fetchPasswords();
+      alert('CSV imported successfully!');
+    } catch (error) {
+      console.error('Error importing CSV:', error);
+      alert(error instanceof Error ? error.message : 'Error importing CSV');
+    } finally {
+      setIsImporting(false);
+      // Reset the file input
+      event.target.value = '';
+    }
+  };
+
   if (status === 'loading') {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -219,6 +272,28 @@ export default function Dashboard() {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex justify-end gap-2">
+          <label className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center gap-2 cursor-pointer">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="hidden"
+              disabled={isImporting}
+            />
+            {isImporting ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+                Importing...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Import CSV
+              </>
+            )}
+          </label>
           <button
             onClick={() => {
               exportToCSV(filteredPasswords, false);

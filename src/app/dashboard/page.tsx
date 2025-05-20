@@ -13,6 +13,11 @@ interface Password {
   createdAt: string;
 }
 
+const truncateText = (text: string, maxLength: number = 50) => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+};
+
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -223,7 +228,7 @@ export default function Dashboard() {
             <div key={password.id} className="bg-gray-50 p-4 rounded-lg shadow border border-gray-200">
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div className="w-full">
-                  <h3 className="text-lg font-semibold text-gray-900">{password.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{truncateText(password.title)}</h3>
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-gray-900">Username: {password.username}</p>
                     <button
@@ -279,7 +284,7 @@ export default function Dashboard() {
                   </div>
                   {password.url && password.url.trim() !== '' && (
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-gray-900">URL: {password.url}</p>
+                      <p className="text-gray-900">URL: {truncateText(password.url)}</p>
                       <button
                         onClick={() => copyToClipboard(password.url, password.id, 'url')}
                         disabled={isCopying?.id === password.id && isCopying?.field === 'url'}

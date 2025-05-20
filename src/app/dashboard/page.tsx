@@ -224,11 +224,11 @@ export default function Dashboard() {
                 <div className="w-full">
                   <h3 className="text-lg font-semibold">{password.title}</h3>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-gray-600">Username: {password.username}</p>
+                    <p className="text-gray-800 dark:text-gray-200">Username: {password.username}</p>
                     <button
                       onClick={() => copyToClipboard(password.username, password.id, 'username')}
                       disabled={isCopying?.id === password.id && isCopying?.field === 'username'}
-                      className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1 disabled:opacity-50"
+                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
                     >
                       {isCopying?.id === password.id && isCopying?.field === 'username' ? (
                         <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
@@ -245,13 +245,13 @@ export default function Dashboard() {
                     </button>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-gray-600">Password: </p>
-                    <span className="text-gray-600 break-all">
+                    <p className="text-gray-800 dark:text-gray-200">Password: </p>
+                    <span className="text-gray-800 dark:text-gray-200 break-all">
                       {showPassword[password.id] ? password.password : '••••••••'}
                     </span>
                     <button
                       onClick={() => togglePasswordVisibility(password.id)}
-                      className="text-blue-500 hover:text-blue-700 text-sm"
+                      className="text-blue-600 hover:text-blue-800 text-sm"
                     >
                       {showPassword[password.id] ? 'Hide' : 'Show'}
                     </button>
@@ -259,7 +259,7 @@ export default function Dashboard() {
                       <button
                         onClick={() => copyToClipboard(password.password, password.id, 'password')}
                         disabled={isCopying?.id === password.id && isCopying?.field === 'password'}
-                        className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1 disabled:opacity-50"
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
                       >
                         {isCopying?.id === password.id && isCopying?.field === 'password' ? (
                           <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
@@ -277,11 +277,11 @@ export default function Dashboard() {
                     )}
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-gray-600">URL: {password.url}</p>
+                    <p className="text-gray-800 dark:text-gray-200">URL: {password.url}</p>
                     <button
                       onClick={() => copyToClipboard(password.url, password.id, 'url')}
                       disabled={isCopying?.id === password.id && isCopying?.field === 'url'}
-                      className="text-blue-500 hover:text-blue-700 text-sm flex items-center gap-1 disabled:opacity-50"
+                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
                     >
                       {isCopying?.id === password.id && isCopying?.field === 'url' ? (
                         <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>

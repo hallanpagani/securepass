@@ -412,8 +412,8 @@ export default function Dashboard() {
         </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold">SecurePass</h1>
-            <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">SecurePass</h1>
+            <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-sm font-medium px-2.5 py-0.5 rounded">
               {filteredPasswords.length} {filteredPasswords.length === 1 ? 'password' : 'passwords'}
             </span>
           </div>
@@ -424,7 +424,7 @@ export default function Dashboard() {
               placeholder="Search by title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
             <button
               onClick={handleOpenModal}
@@ -441,25 +441,25 @@ export default function Dashboard() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
       ) : passwords.length === 0 && status === 'authenticated' ? (
-        <p>No passwords found. Add one!</p>
+        <p className="text-gray-900 dark:text-white">No passwords found. Add one!</p>
       ) : (
         <div className="grid gap-4">
           {filteredPasswords.map((password) => (
-            <div key={password.id} className="bg-white p-4 rounded-lg shadow">
+            <div key={password.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                 <div className="w-full">
-                  <h3 className="text-lg font-semibold">{truncateText(password.title)}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{truncateText(password.title)}</h3>
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-gray-800 dark:text-gray-200">Username: {truncateText(password.username.trim())}</p>
                     <button
                       onClick={() => copyToClipboard(password.username.trim(), password.id, 'username')}
                       disabled={isCopying?.id === password.id && isCopying?.field === 'username'}
-                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
                     >
                       {isCopying?.id === password.id && isCopying?.field === 'username' ? (
                         <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
                       ) : copiedField?.id === password.id && copiedField?.field === 'username' ? (
-                        <span className="text-green-500">✓ Copied!</span>
+                        <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
                       ) : (
                         <>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -477,7 +477,7 @@ export default function Dashboard() {
                     </span>
                     <button
                       onClick={() => togglePasswordVisibility(password.id)}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
                     >
                       {showPassword[password.id] ? 'Hide' : 'Show'}
                     </button>
@@ -485,12 +485,12 @@ export default function Dashboard() {
                       <button
                         onClick={() => copyToClipboard(password.password, password.id, 'password')}
                         disabled={isCopying?.id === password.id && isCopying?.field === 'password'}
-                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
                       >
                         {isCopying?.id === password.id && isCopying?.field === 'password' ? (
                           <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
                         ) : copiedField?.id === password.id && copiedField?.field === 'password' ? (
-                          <span className="text-green-500">✓ Copied!</span>
+                          <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
                         ) : (
                           <>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -508,12 +508,12 @@ export default function Dashboard() {
                       <button
                         onClick={() => copyToClipboard(password.url, password.id, 'url')}
                         disabled={isCopying?.id === password.id && isCopying?.field === 'url'}
-                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 disabled:opacity-50"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
                       >
                         {isCopying?.id === password.id && isCopying?.field === 'url' ? (
                           <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
                         ) : copiedField?.id === password.id && copiedField?.field === 'url' ? (
-                          <span className="text-green-500">✓ Copied!</span>
+                          <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
                         ) : (
                           <>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -529,14 +529,14 @@ export default function Dashboard() {
                 <div className="flex gap-2 self-end sm:self-start">
                   <button
                     onClick={() => handleEdit(password)}
-                    className="text-blue-500 hover:text-blue-700 px-3 py-1 border border-blue-500 rounded hover:bg-blue-50"
+                    className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1 border border-blue-500 dark:border-blue-400 rounded hover:bg-blue-50 dark:hover:bg-blue-900/50"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(password.id)}
                     disabled={isDeleting === password.id}
-                    className="text-red-500 hover:text-red-700 px-3 py-1 border border-red-500 rounded hover:bg-red-50 disabled:opacity-50 flex items-center gap-1"
+                    className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 px-3 py-1 border border-red-500 dark:border-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/50 disabled:opacity-50 flex items-center gap-1"
                   >
                     {isDeleting === password.id ? (
                       <>
@@ -556,44 +556,44 @@ export default function Dashboard() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
               {editingPassword ? 'Edit Password' : 'Add New Password'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Title</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
                 <input
                   ref={titleInputRef}
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value.trim() })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                   maxLength={500}
                   disabled={isSubmitting}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
                 <input
                   type="text"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value.trim() })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   required
                   maxLength={500}
                   disabled={isSubmitting}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                 <div className="relative mt-1">
                   <input
                     type={showFormPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                     maxLength={500}
                     disabled={isSubmitting}
@@ -602,7 +602,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setShowFormPassword(!showFormPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                   >
                     {showFormPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -618,12 +618,12 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">URL</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
                 <input
                   type="text"
                   value={formData.url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value.trim() })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter URL"
                   maxLength={500}
                   disabled={isSubmitting}
@@ -633,7 +633,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
                   disabled={isSubmitting}
                 >
                   Cancel

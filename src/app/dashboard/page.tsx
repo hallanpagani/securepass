@@ -226,9 +226,15 @@ export default function Dashboard() {
         throw new Error('Invalid CSV format. Required headers: Title, Username, Password, URL, Created At');
       }
 
+      let successCount = 0;
+      let errorCount = 0;
+
       // Process each row
       for (const row of data) {
-        if (row.length !== headers.length) continue; // Skip invalid rows
+        if (row.length !== headers.length) {
+          errorCount++;
+          continue; // Skip invalid rows
+        }
 
         const passwordData = {
           title: row[headers.indexOf('Title')].trim(),
@@ -237,19 +243,38 @@ export default function Dashboard() {
           url: row[headers.indexOf('URL')].trim(),
         };
 
-        // Add password to database
-        await fetch('/api/passwords', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(passwordData),
-        });
+        try {
+          // Add password to database
+          const response = await fetch('/api/passwords', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(passwordData),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error importing password:', errorData);
+            errorCount++;
+          } else {
+            successCount++;
+          }
+        } catch (error) {
+          console.error('Error importing password:', error);
+          errorCount++;
+        }
       }
 
       // Refresh the password list
       await fetchPasswords();
-      alert('CSV imported successfully!');
+
+      // Show results
+      if (errorCount > 0) {
+        alert(`Import completed with ${successCount} successful imports and ${errorCount} errors.`);
+      } else {
+        alert(`Successfully imported ${successCount} passwords!`);
+      }
     } catch (error) {
       console.error('Error importing CSV:', error);
       alert(error instanceof Error ? error.message : 'Error importing CSV');

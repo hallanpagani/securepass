@@ -85,12 +85,19 @@ export default function Dashboard() {
       
       const method = editingPassword ? 'PUT' : 'POST';
       
+      const trimmedFormData = {
+        title: formData.title.trim(),
+        username: formData.username.trim(),
+        password: formData.password.trim(),
+        url: formData.url.trim(),
+      };
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(trimmedFormData),
       });
 
       if (response.ok) {
@@ -137,10 +144,10 @@ export default function Dashboard() {
   const handleEdit = (password: Password) => {
     setEditingPassword(password);
     setFormData({
-      title: password.title,
-      username: password.username,
-      password: password.password, // Note: For actual edit, you might not want to prefill this for security.
-      url: password.url,
+      title: password.title.trim(),
+      username: password.username.trim(),
+      password: password.password.trim(),
+      url: password.url.trim(),
     });
     setIsModalOpen(true);
   };
@@ -346,7 +353,7 @@ export default function Dashboard() {
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                   disabled={isSubmitting}
@@ -357,7 +364,7 @@ export default function Dashboard() {
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                   disabled={isSubmitting}
@@ -369,7 +376,7 @@ export default function Dashboard() {
                   <input
                     type={showFormPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
                     required
                     disabled={isSubmitting}
@@ -398,7 +405,7 @@ export default function Dashboard() {
                 <input
                   type="text"
                   value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Enter URL"
                   disabled={isSubmitting}

@@ -254,11 +254,7 @@ export default function Dashboard() {
             </button>
             <button
               onClick={() => {
-                if (confirm('Do you want to export passwords with encryption?')) {
-                  exportToCSV(filteredPasswords, true);
-                } else {
-                  exportToCSV(filteredPasswords, false);
-                }
+                exportToCSV(filteredPasswords, false);
               }}
               className="flex-1 sm:flex-none bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
               disabled={isExporting || filteredPasswords.length === 0}

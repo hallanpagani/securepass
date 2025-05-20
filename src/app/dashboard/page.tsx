@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { encrypt } from '@/lib/encryption';
@@ -72,6 +72,7 @@ export default function Dashboard() {
   const [showFormPassword, setShowFormPassword] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const filteredPasswords = passwords.filter(password => 
     password.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -285,6 +286,16 @@ export default function Dashboard() {
     }
   };
 
+  const handleOpenModal = () => {
+    setEditingPassword(null);
+    setFormData({ title: '', username: '', password: '', url: '' });
+    setIsModalOpen(true);
+    // Focus title input after modal opens
+    setTimeout(() => {
+      titleInputRef.current?.focus();
+    }, 100);
+  };
+
   if (status === 'loading') {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -364,11 +375,7 @@ export default function Dashboard() {
               className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
-              onClick={() => {
-                setEditingPassword(null);
-                setFormData({ title: '', username: '', password: '', url: '' });
-                setIsModalOpen(true);
-              }}
+              onClick={handleOpenModal}
               className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Add New Password
@@ -505,6 +512,7 @@ export default function Dashboard() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Title</label>
                 <input
+                  ref={titleInputRef}
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value.trim() })}

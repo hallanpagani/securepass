@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#2563EB"/>
+  
+  <!-- Lock body -->
+  <rect x="128" y="256" width="256" height="192" rx="32" fill="white"/>
+  
+  <!-- Lock shackle -->
+  <path d="M192 256V192C192 128 224 96 256 96C288 96 320 128 320 192V256" stroke="white" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Lock keyhole -->
+  <circle cx="256" cy="352" r="32" fill="#2563EB"/>
+  <rect x="240" y="320" width="32" height="48" fill="#2563EB"/>
+</svg> 

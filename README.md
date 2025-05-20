@@ -1,5 +1,9 @@
 # SecurePass - Your Digital Memory Saver 🧠
 
+> 🚀 Live Demo: [https://securepass-alpha.vercel.app/](https://securepass-alpha.vercel.app/)
+>
+> 💻 Developed using [Cursor IDE](https://cursor.sh/) - The AI-powered code editor
+
 ## The Story Behind SecurePass
 
 Picture this: It's Monday morning, you're running late for work, and you need to check your bank account. You type in your password... "Incorrect password". You try again... "Incorrect password". You start sweating. "Was it my dog's name? My birthday? My favorite pizza topping? 🤔"

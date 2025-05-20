@@ -21,15 +21,14 @@ const truncateText = (text: string, maxLength: number = 50) => {
 
 const exportToCSV = (passwords: Password[], encrypted: boolean) => {
   // Create CSV header
-  const headers = ['Title', 'Username', 'Password', 'URL', 'Created At'];
+  const headers = ['Title', 'Username', 'Password', 'URL'];
   
   // Create CSV rows
   const rows = passwords.map(password => [
     password.title,
     password.username,
     encrypted ? encrypt(password.password) : password.password,
-    password.url,
-    new Date(password.createdAt).toLocaleString()
+    password.url
   ]);
 
   // Combine headers and rows
@@ -240,7 +239,7 @@ export default function Dashboard() {
       const data = rows.slice(1);
 
       // Validate headers
-      const requiredHeaders = ['Title', 'Username', 'Password', 'URL', 'Created At'];
+      const requiredHeaders = ['Title', 'Username', 'Password', 'URL'];
       const hasValidHeaders = requiredHeaders.every(header => headers.includes(header));
       if (!hasValidHeaders) {
         const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));

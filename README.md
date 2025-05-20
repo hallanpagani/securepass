@@ -44,6 +44,9 @@ That's why we created **SecurePass** - your friendly neighborhood password manag
 - PostgreSQL
 - NextAuth.js
 - Tailwind CSS
+- Headless UI
+- Heroicons
+- bcryptjs
 
 ## Contributing 🤝
 
@@ -162,24 +165,19 @@ npm run dev
 
 ```
 password-manager/
-├── app/                    # Next.js app directory (App Router)
-│   ├── api/               # API routes
-│   ├── auth/              # Authentication related pages
-│   ├── dashboard/         # Dashboard pages
-│   └── layout.tsx         # Root layout
-├── components/            # Reusable React components
-│   ├── ui/               # UI components
-│   └── forms/            # Form components
+├── src/                    # Source directory
+│   ├── app/               # Next.js app directory (App Router)
+│   │   ├── api/          # API routes
+│   │   ├── auth/         # Authentication related pages
+│   │   └── layout.tsx    # Root layout
+│   └── components/       # Reusable React components
 ├── lib/                   # Utility functions and shared code
-│   ├── auth/             # Authentication utilities
-│   ├── db/               # Database utilities
-│   └── utils/            # General utilities
 ├── prisma/               # Prisma schema and migrations
 │   └── schema.prisma     # Database schema
 ├── public/               # Static assets
-├── styles/               # Global styles
 ├── types/                # TypeScript type definitions
 ├── .env                  # Environment variables
+├── .env.example         # Example environment variables
 ├── .gitignore           # Git ignore file
 ├── next.config.js       # Next.js configuration
 ├── package.json         # Project dependencies
@@ -189,17 +187,16 @@ password-manager/
 
 ### Key Files and Folders
 
-- `app/`: Contains all the pages and API routes using Next.js 13+ App Router
-- `components/`: Reusable React components organized by functionality
+- `src/app/`: Contains all the pages and API routes using Next.js 14 App Router
+- `src/components/`: Reusable React components
 - `lib/`: Shared utilities and helper functions
 - `prisma/`: Database schema and migration files
 - `public/`: Static assets like images and fonts
-- `styles/`: Global styles and Tailwind CSS configuration
 - `types/`: TypeScript type definitions and interfaces
 - `.env`: Environment variables (not committed to version control)
 - `next.config.js`: Next.js configuration file
 - `package.json`: Project dependencies and scripts
-- `tsconfig.json`: TypeScript configuration 
+- `tsconfig.json`: TypeScript configuration
 
 ## Development Guidelines
 

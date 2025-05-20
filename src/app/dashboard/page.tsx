@@ -218,7 +218,28 @@ export default function Dashboard() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex flex-col gap-4 mb-6">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => {
+              exportToCSV(filteredPasswords, false);
+            }}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
+            disabled={isExporting || filteredPasswords.length === 0}
+          >
+            {isExporting ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+                Exporting...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export CSV
+              </>
+            )}
+          </button>
           <button
             onClick={() => signOut({ callbackUrl: '/auth/signin' })}
             className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
@@ -251,27 +272,6 @@ export default function Dashboard() {
               className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Add New Password
-            </button>
-            <button
-              onClick={() => {
-                exportToCSV(filteredPasswords, false);
-              }}
-              className="flex-1 sm:flex-none bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
-              disabled={isExporting || filteredPasswords.length === 0}
-            >
-              {isExporting ? (
-                <>
-                  <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Export CSV
-                </>
-              )}
             </button>
           </div>
         </div>

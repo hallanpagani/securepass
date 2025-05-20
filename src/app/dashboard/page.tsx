@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { encrypt } from '@/lib/encryption';
 
 interface Password {
   id: string;
@@ -16,6 +17,37 @@ interface Password {
 const truncateText = (text: string, maxLength: number = 50) => {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + '...';
+};
+
+const exportToCSV = (passwords: Password[], encrypted: boolean) => {
+  // Create CSV header
+  const headers = ['Title', 'Username', 'Password', 'URL', 'Created At'];
+  
+  // Create CSV rows
+  const rows = passwords.map(password => [
+    password.title,
+    password.username,
+    encrypted ? encrypt(password.password) : password.password,
+    password.url,
+    new Date(password.createdAt).toLocaleString()
+  ]);
+
+  // Combine headers and rows
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+  ].join('\n');
+
+  // Create and download file
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `passwords_${encrypted ? 'encrypted' : 'decrypted'}_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 export default function Dashboard() {
@@ -38,6 +70,7 @@ export default function Dashboard() {
     url: '',
   });
   const [showFormPassword, setShowFormPassword] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const filteredPasswords = passwords.filter(password => 
     password.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -218,6 +251,31 @@ export default function Dashboard() {
               className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               Add New Password
+            </button>
+            <button
+              onClick={() => {
+                if (confirm('Do you want to export passwords with encryption?')) {
+                  exportToCSV(filteredPasswords, true);
+                } else {
+                  exportToCSV(filteredPasswords, false);
+                }
+              }}
+              className="flex-1 sm:flex-none bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
+              disabled={isExporting || filteredPasswords.length === 0}
+            >
+              {isExporting ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Export CSV
+                </>
+              )}
             </button>
           </div>
         </div>

@@ -126,6 +126,25 @@ export default function Dashboard() {
         password: formData.password.trim(),
         url: formData.url.trim(),
       };
+
+      // Validate max length
+      const maxLength = 500;
+      if (trimmedFormData.title.length > maxLength) {
+        alert(`Title exceeds maximum length of ${maxLength} characters`);
+        return;
+      }
+      if (trimmedFormData.username.length > maxLength) {
+        alert(`Username exceeds maximum length of ${maxLength} characters`);
+        return;
+      }
+      if (trimmedFormData.password.length > maxLength) {
+        alert(`Password exceeds maximum length of ${maxLength} characters`);
+        return;
+      }
+      if (trimmedFormData.url.length > maxLength) {
+        alert(`URL exceeds maximum length of ${maxLength} characters`);
+        return;
+      }
       
       const response = await fetch(url, {
         method,
@@ -252,6 +271,29 @@ export default function Dashboard() {
         if (!passwordData.title || !passwordData.username || !passwordData.password) {
           errorCount++;
           errorMessages.push(`Row ${index + 2}: Missing required fields (Title, Username, or Password)`);
+          continue;
+        }
+
+        // Validate max length
+        const maxLength = 500;
+        if (passwordData.title.length > maxLength) {
+          errorCount++;
+          errorMessages.push(`Row ${index + 2}: Title exceeds maximum length of ${maxLength} characters`);
+          continue;
+        }
+        if (passwordData.username.length > maxLength) {
+          errorCount++;
+          errorMessages.push(`Row ${index + 2}: Username exceeds maximum length of ${maxLength} characters`);
+          continue;
+        }
+        if (passwordData.password.length > maxLength) {
+          errorCount++;
+          errorMessages.push(`Row ${index + 2}: Password exceeds maximum length of ${maxLength} characters`);
+          continue;
+        }
+        if (passwordData.url.length > maxLength) {
+          errorCount++;
+          errorMessages.push(`Row ${index + 2}: URL exceeds maximum length of ${maxLength} characters`);
           continue;
         }
 
@@ -529,6 +571,7 @@ export default function Dashboard() {
                   onChange={(e) => setFormData({ ...formData, title: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
+                  maxLength={500}
                   disabled={isSubmitting}
                 />
               </div>
@@ -540,6 +583,7 @@ export default function Dashboard() {
                   onChange={(e) => setFormData({ ...formData, username: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
+                  maxLength={500}
                   disabled={isSubmitting}
                 />
               </div>
@@ -552,6 +596,7 @@ export default function Dashboard() {
                     onChange={(e) => setFormData({ ...formData, password: e.target.value.trim() })}
                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
                     required
+                    maxLength={500}
                     disabled={isSubmitting}
                     autoComplete={editingPassword ? "current-password" : "new-password"}
                   />
@@ -581,6 +626,7 @@ export default function Dashboard() {
                   onChange={(e) => setFormData({ ...formData, url: e.target.value.trim() })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Enter URL"
+                  maxLength={500}
                   disabled={isSubmitting}
                 />
               </div>

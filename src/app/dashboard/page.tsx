@@ -224,17 +224,21 @@ export default function Dashboard() {
       const requiredHeaders = ['Title', 'Username', 'Password', 'URL', 'Created At'];
       const hasValidHeaders = requiredHeaders.every(header => headers.includes(header));
       if (!hasValidHeaders) {
-        throw new Error('Invalid CSV format. Required headers: Title, Username, Password, URL, Created At');
+        const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+        throw new Error(`Invalid CSV format. Missing required headers: ${missingHeaders.join(', ')}`);
       }
 
       let successCount = 0;
       let errorCount = 0;
+      let errorMessages: string[] = [];
 
       // Process each row
-      for (const row of data) {
+      for (let index = 0; index < data.length; index++) {
+        const row = data[index];
         if (row.length !== headers.length) {
           errorCount++;
-          continue; // Skip invalid rows
+          errorMessages.push(`Row ${index + 2}: Invalid number of columns. Expected ${headers.length}, got ${row.length}`);
+          continue;
         }
 
         const passwordData = {
@@ -243,6 +247,13 @@ export default function Dashboard() {
           password: row[headers.indexOf('Password')].trim(),
           url: row[headers.indexOf('URL')].trim(),
         };
+
+        // Validate required fields
+        if (!passwordData.title || !passwordData.username || !passwordData.password) {
+          errorCount++;
+          errorMessages.push(`Row ${index + 2}: Missing required fields (Title, Username, or Password)`);
+          continue;
+        }
 
         try {
           // Add password to database
@@ -256,14 +267,14 @@ export default function Dashboard() {
 
           if (!response.ok) {
             const errorData = await response.json();
-            console.error('Error importing password:', errorData);
             errorCount++;
+            errorMessages.push(`Row ${index + 2}: ${errorData.error || response.statusText}`);
           } else {
             successCount++;
           }
         } catch (error) {
-          console.error('Error importing password:', error);
           errorCount++;
+          errorMessages.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
 
@@ -272,7 +283,7 @@ export default function Dashboard() {
 
       // Show results
       if (errorCount > 0) {
-        alert(`Import completed with ${successCount} successful imports and ${errorCount} errors.`);
+        alert(`Import completed with ${successCount} successful imports and ${errorCount} errors.\n\nErrors:\n${errorMessages.join('\n')}`);
       } else {
         alert(`Successfully imported ${successCount} passwords!`);
       }

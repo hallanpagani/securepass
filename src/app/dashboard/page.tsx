@@ -78,6 +78,7 @@ interface PasswordCardProps {
 
 // Create a memoized password card component to prevent unnecessary re-renders
 const PasswordCard = React.memo(({ 
+ console.log('Rendering PasswordCard for:', password.id, password.title);
   password, 
   onEdit, 
   onDelete, 
@@ -225,6 +226,7 @@ PasswordCard.displayName = 'PasswordCard';
 export default function Dashboard() {
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
+  console.log('Dashboard component rendered. Session status:', status, 'User:', session?.user?.name);
   
   // Use the data fetching hook instead of direct fetch calls
   const { 
@@ -232,6 +234,7 @@ export default function Dashboard() {
     isLoading: isLoadingPasswords, 
     refetch: refetchPasswords 
   } = useDataFetching<Password[]>('/api/passwords', {
+    console.log('useDataFetching hook called for passwords.');
     // Only fetch when fully authenticated
     onError: (error) => {
       console.error('Error fetching passwords:', error);
@@ -245,6 +248,7 @@ export default function Dashboard() {
   const { 
     data: tagsData, 
     refetch: refetchTags 
+ console.log('useDataFetching hook called for tags.');
   } = useDataFetching<Tag[]>('/api/tags', {
     // Only fetch when fully authenticated
     onError: (error) => console.error('Error fetching tags:', error)
@@ -257,11 +261,13 @@ export default function Dashboard() {
   // Update local state when API data changes
   useEffect(() => {
     if (passwordsData) {
+      console.log('passwordsData updated. Setting passwords state:', passwordsData.length, 'items');
       setPasswords(passwordsData);
     }
   }, [passwordsData]);
   
   useEffect(() => {
+    console.log('tagsData updated. Setting allTags state:', tagsData?.length, 'items');
     if (tagsData) {
       setAllTags(tagsData);
     }
@@ -339,6 +345,7 @@ export default function Dashboard() {
   const { resetTimers: resetInactivityTimer } = useInactivityTimer({
     onWarning: handleWarning,
     onIdle: handleIdle,
+ console.log('useInactivityTimer hook initialized.');
     isTimerActive: isTimerCurrentlyActive, 
   });
 
@@ -350,6 +357,7 @@ export default function Dashboard() {
 
   // Use memoized filtering to prevent unnecessary re-renders
   const filteredPasswords = useMemo(() => {
+    console.log('Memoizing filtered passwords. searchTerm:', debouncedSearchTerm, 'selectedTags:', selectedTagsForFilter, 'showFavoritesOnly:', showFavoritesOnly, 'passwordsData:', passwordsData?.length);
     // Ensure we're using passwordsData directly instead of the local passwords state
     const currentPasswords = passwordsData || [];
     return currentPasswords.filter(password => {
@@ -369,6 +377,7 @@ export default function Dashboard() {
   }, [passwordsData, debouncedSearchTerm, selectedTagsForFilter, showFavoritesOnly]);
 
   const handleToggleFavorite = async (passwordId: string, currentIsFavorite: boolean) => {
+    console.log('handleToggleFavorite called for passwordId:', passwordId, 'currentIsFavorite:', currentIsFavorite);
     // Optimistically update UI
     setPasswords(prevPasswords => 
       prevPasswords.map(p => 
@@ -376,6 +385,7 @@ export default function Dashboard() {
       )
     );
 
+    console.log('Optimistically updated passwords state for favorite toggle.');
     try {
       const response = await fetch(`/api/passwords/${passwordId}`, {
         method: 'PUT',
@@ -385,6 +395,7 @@ export default function Dashboard() {
 
       if (!response.ok) {
         // Revert optimistic update on error
+        console.error('Error response when toggling favorite:', response.status);
         setPasswords(prevPasswords => 
           prevPasswords.map(p => 
             p.id === passwordId ? { ...p, isFavorite: currentIsFavorite } : p
@@ -398,6 +409,7 @@ export default function Dashboard() {
       // fetchPasswords(); 
     } catch (error) {
       // Revert optimistic update on error
+      console.error('Catch block error when toggling favorite:', error);
       setPasswords(prevPasswords => 
         prevPasswords.map(p => 
           p.id === passwordId ? { ...p, isFavorite: currentIsFavorite } : p
@@ -411,11 +423,13 @@ export default function Dashboard() {
   // Replace the previous fetchPasswords and fetchAllTags functions
   // with wrappers around our refetch functions
   const fetchPasswords = useCallback(async () => {
+    console.log('fetchPasswords called.');
     if (isLoadingPasswords) return; // Don't fetch if already loading
     await refetchPasswords();
   }, [isLoadingPasswords, refetchPasswords]);
   
   const fetchAllTags = useCallback(async () => {
+    console.log('fetchAllTags called.');
     if (isLoadingPasswords) return; // Don't fetch if passwords are loading
     await refetchTags();
   }, [isLoadingPasswords, refetchTags]);
@@ -423,6 +437,7 @@ export default function Dashboard() {
   // Authentication redirect effect
   useEffect(() => {
     if (status === 'unauthenticated') {
+      console.log('Authentication status: unauthenticated. Redirecting to signin.');
       router.push('/auth/signin');
     } else if (status === 'authenticated' && session?.user?.id) {
       // Check if user needs to complete 2FA
@@ -430,12 +445,15 @@ export default function Dashboard() {
         // Redirect to 2FA page
         router.push('/auth/2fa');
       } else {
+        console.log('Authentication status: authenticated and 2FA not pending. Checking if data needs fetching.');
         // Only fetch data when fully authenticated and not already loading
         if (!isLoadingPasswords && !passwordsData) {
+          console.log('passwordsData not available, fetching passwords...');
           fetchPasswords();
         }
         
         if (!tagsData) {
+          console.log('tagsData not available, fetching tags...');
           fetchAllTags();
         }
       }
@@ -443,6 +461,7 @@ export default function Dashboard() {
   }, [status, router, session?.user?.id, session?.user?.isTwoFactorEnabled, 
       session?.user?.is2FAPending, isLoadingPasswords, passwordsData, 
       tagsData, fetchPasswords, fetchAllTags]);
+  console.log('Dashboard useEffect dependencies updated.');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -465,19 +484,23 @@ export default function Dashboard() {
       // Validate max length
       const maxLength = 500;
       if (trimmedFormData.title.length > maxLength) {
+        console.warn('Validation failed: Title exceeds max length.');
         alert(`Title exceeds maximum length of ${maxLength} characters`);
         return;
       }
       if (trimmedFormData.username.length > maxLength) {
+        console.warn('Validation failed: Username exceeds max length.');
         alert(`Username exceeds maximum length of ${maxLength} characters`);
         return;
       }
       if (trimmedFormData.password.length > maxLength) {
+        console.warn('Validation failed: Password exceeds max length.');
         alert(`Password exceeds maximum length of ${maxLength} characters`);
         return;
       }
       if (trimmedFormData.url.length > maxLength) {
         alert(`URL exceeds maximum length of ${maxLength} characters`);
+        console.warn('Validation failed: URL exceeds max length.');
         return;
       }
       
@@ -490,6 +513,7 @@ export default function Dashboard() {
       });
 
       if (response.ok) {
+        console.log('Password saved successfully.');
         setIsModalOpen(false);
         setEditingPassword(null);
         setFormData({ title: '', username: '', password: '', url: '' }); // Reset form
@@ -511,6 +535,7 @@ export default function Dashboard() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this password?')) {
+      console.log('Deleting password with id:', id);
       try {
         setIsDeleting(id);
         const response = await fetch(`/api/passwords/${id}`, {
@@ -518,6 +543,7 @@ export default function Dashboard() {
         });
         if (response.ok) {
           fetchPasswords();
+          console.log('Password deleted successfully, refetching list.');
         } else {
           console.error('Error deleting password: Response not OK', response);
           const errorData = await response.json();
@@ -533,6 +559,7 @@ export default function Dashboard() {
   };
 
   const handleEdit = (password: Password) => {
+    console.log('Opening modal for editing password:', password.id, password.title);
     setEditingPassword(password);
     setFormData({
       title: password.title.trim(),
@@ -552,6 +579,7 @@ export default function Dashboard() {
   };
 
   const fetchPasswordHistory = async (passwordId: string) => {
+    console.log('Fetching password history for ID:', passwordId);
     setHistoryLoading(true);
     setHistoryError(null);
     try {
@@ -561,6 +589,7 @@ export default function Dashboard() {
         throw new Error(errorData.error || 'Failed to fetch password history.');
       }
       const historyData = await response.json();
+      console.log('Fetched password history:', historyData.length, 'entries');
       setPasswordHistory(historyData);
     } catch (error) {
       console.error('Error fetching password history:', error);
@@ -571,11 +600,13 @@ export default function Dashboard() {
   };
 
   const handleRevertPassword = async (passwordEntryId: string, historyId: string) => {
+    console.log('Attempting to revert password entry:', passwordEntryId, 'to history ID:', historyId);
     if (!confirm('Are you sure you want to revert to this password version? The current password will be moved to history.')) {
       return;
     }
     setIsSubmitting(true); // Use main form submitting state or a dedicated one
     try {
+      console.log('Sending POST request to revert password.');
       const response = await fetch(`/api/passwords/${passwordEntryId}/revert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -584,7 +615,7 @@ export default function Dashboard() {
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to revert password.');
-      }
+      }      console.log('Password reverted successfully. Response data:', data);
       alert('Password reverted successfully!');
       
       // Update the form with the reverted password (data.revertedPassword.password is encrypted)
@@ -593,6 +624,7 @@ export default function Dashboard() {
       // For now, let's just update from history if available, or refetch.
       const revertedHistoryEntry = passwordHistory.find(h => h.id === historyId);
       if (revertedHistoryEntry && revertedHistoryEntry.password && !revertedHistoryEntry.decryptionError) {
+        console.log('Updating form with reverted password from history.');
         setFormData(prev => ({ ...prev, password: revertedHistoryEntry.password }));
         handlePasswordChange({ target: { value: revertedHistoryEntry.password } }); // Update strength meter
       } else {
@@ -603,6 +635,7 @@ export default function Dashboard() {
       }
 
       fetchPasswords(); // Refresh the main list of passwords
+      console.log('Refetching main password list.');
       fetchPasswordHistory(passwordEntryId); // Refresh the history for the current item
 
     } catch (error) {
@@ -614,10 +647,12 @@ export default function Dashboard() {
   };
 
   const toggleShowHistoryPassword = (historyId: string) => {
+    console.log('Toggling password visibility for history entry:', historyId);
     setShowHistoryPasswords(prev => ({ ...prev, [historyId]: !prev[historyId] }));
   };
 
   const togglePasswordVisibility = (id: string) => {
+    console.log('Toggling password visibility for main password ID:', id);
     setShowPassword(prev => ({
       ...prev,
       [id]: !prev[id]
@@ -625,12 +660,14 @@ export default function Dashboard() {
   };
 
   const copyToClipboard = async (text: string, id: string, field: string) => {
+    console.log('Attempting to copy', field, 'for ID:', id);
     try {
       setIsCopying({ id, field });
       await navigator.clipboard.writeText(text);
       setCopiedField({ id, field });
       setTimeout(() => {
         setCopiedField(null);
+        console.log('Copy state reset after timeout.');
         setIsCopying(null);
       }, 2000);
     } catch (err) {
@@ -641,6 +678,7 @@ export default function Dashboard() {
 
   const handleImportCSV = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log('handleImportCSV called. File:', file?.name);
     if (!file) return;
 
     try {
@@ -653,6 +691,7 @@ export default function Dashboard() {
       // Validate headers
       const requiredHeaders = ['Title', 'Username', 'Password', 'URL'];
       const hasValidHeaders = requiredHeaders.every(header => headers.includes(header));
+      console.log('CSV headers:', headers, 'Valid headers found:', hasValidHeaders);
       if (!hasValidHeaders) {
         const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
         throw new Error(`Invalid CSV format. Missing required headers: ${missingHeaders.join(', ')}`);
@@ -664,6 +703,7 @@ export default function Dashboard() {
 
       // Process each row
       for (let index = 0; index < data.length; index++) {
+        console.log('Processing CSV row:', index + 2);
         const row = data[index];
         if (row.length !== headers.length) {
           errorCount++;
@@ -680,6 +720,7 @@ export default function Dashboard() {
 
         // Validate required fields
         if (!passwordData.title || !passwordData.username || !passwordData.password) {
+          console.warn('Row validation failed: Missing required fields in row', index + 2);
           errorCount++;
           errorMessages.push(`Row ${index + 2}: Missing required fields (Title, Username, or Password)`);
           continue;
@@ -687,22 +728,24 @@ export default function Dashboard() {
 
         // Validate max length
         const maxLength = 500;
-        if (passwordData.title.length > maxLength) {
-          errorCount++;
+        if (passwordData.title.length > maxLength) {          errorCount++;
           errorMessages.push(`Row ${index + 2}: Title exceeds maximum length of ${maxLength} characters`);
           continue;
         }
         if (passwordData.username.length > maxLength) {
+          console.warn('Row validation failed: Username exceeds max length in row', index + 2);
           errorCount++;
           errorMessages.push(`Row ${index + 2}: Username exceeds maximum length of ${maxLength} characters`);
           continue;
         }
         if (passwordData.password.length > maxLength) {
+          console.warn('Row validation failed: Password exceeds max length in row', index + 2);
           errorCount++;
           errorMessages.push(`Row ${index + 2}: Password exceeds maximum length of ${maxLength} characters`);
           continue;
         }
         if (passwordData.url.length > maxLength) {
+          console.warn('Row validation failed: URL exceeds max length in row', index + 2);
           errorCount++;
           errorMessages.push(`Row ${index + 2}: URL exceeds maximum length of ${maxLength} characters`);
           continue;
@@ -719,6 +762,7 @@ export default function Dashboard() {
           });
 
           if (!response.ok) {
+            console.warn('API response not OK for row', index + 2, 'Status:', response.status);
             const errorData = await response.json();
             errorCount++;
             errorMessages.push(`Row ${index + 2}: ${errorData.error || response.statusText}`);
@@ -727,6 +771,7 @@ export default function Dashboard() {
           }
         } catch (error) {
           errorCount++;
+          console.error('Error processing row', index + 2, ':', error);
           errorMessages.push(`Row ${index + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
@@ -751,6 +796,7 @@ export default function Dashboard() {
   };
 
   const handleOpenModal = () => {
+    console.log('Opening modal for adding new password.');
     setEditingPassword(null);
     setFormData({ title: '', username: '', password: '', url: '' });
     setCurrentPasswordTagsString(''); // Reset tags for new password
@@ -768,6 +814,7 @@ export default function Dashboard() {
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { value: string } }) => {
+    console.log('Password input changed. Evaluating strength.');
     const newPassword = e.target.value;
     setFormData({ ...formData, password: newPassword });
     if (newPassword) {
@@ -779,6 +826,7 @@ export default function Dashboard() {
   };
 
   const generatePassword = () => {
+    console.log('Generating password with length:', passwordGenLength, 'Uppercase:', passwordGenUppercase, 'Lowercase:', passwordGenLowercase, 'Numbers:', passwordGenNumbers, 'Symbols:', passwordGenSymbols);
     const lowerCharset = "abcdefghijklmnopqrstuvwxyz";
     const upperCharset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const numberCharset = "0123456789";
@@ -805,6 +853,7 @@ export default function Dashboard() {
     }
 
     if (charset === "") {
+      console.warn('Password generation failed: No character types selected.');
       alert("Please select at least one character type for password generation.");
       return;
     }
@@ -812,6 +861,7 @@ export default function Dashboard() {
     // Ensure length is sufficient for guaranteed characters
     const currentLength = parseInt(String(passwordGenLength), 10);
     if (currentLength < guaranteedChars.length) {
+        console.warn('Password generation failed: Length too short for selected types.');
         alert(`Password length must be at least ${guaranteedChars.length} to include all selected character types.`);
         setPasswordGenLength(guaranteedChars.length); // Adjust length to minimum possible
         return; // User needs to re-evaluate or re-click generate
@@ -825,14 +875,17 @@ export default function Dashboard() {
 
     // Shuffle the password to ensure guaranteed characters are not always at the beginning
     generatedPassword = generatedPassword.split('').sort(() => 0.5 - Math.random()).join('');
+    console.log('Generated password:', generatedPassword.slice(0, 5) + '...'); // Log partially
     
     setFormData({ ...formData, password: generatedPassword });
     // Simulate change event for password strength indicator
     handlePasswordChange({ target: { value: generatedPassword } });
     setShowPasswordOptions(false); // Optionally hide options after generation
+    console.log('Generated password applied to form.');
   };
 
   const handleEnable2FASetup = async () => {
+    console.log('Attempting to enable 2FA setup.');
     setIs2FALoading(true);
     setTwoFactorError(null);
     setQrCodeDataUrl(''); // Clear previous QR code
@@ -841,10 +894,12 @@ export default function Dashboard() {
       const response = await fetch('/api/auth/2fa/setup', { method: 'POST' });
       const data = await response.json();
       if (!response.ok) {
+        console.error('API error during 2FA setup:', data.error);
         throw new Error(data.error || 'Failed to start 2FA setup.');
       }
+      console.log('2FA setup successful, QR code data received.');
       setQrCodeDataUrl(data.qrCodeDataUrl);
-      setIs2FAModalOpen(true);
+      setIs2FAModalOpen(true); // Open modal after getting QR code
     } catch (error) {
       setTwoFactorError(error instanceof Error ? error.message : 'An unknown error occurred.');
       console.error("Error enabling 2FA setup:", error);
@@ -855,6 +910,7 @@ export default function Dashboard() {
 
   const handleVerify2FAToken = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Attempting to verify 2FA token.');
     setIs2FALoading(true);
     setTwoFactorError(null);
     try {
@@ -865,10 +921,12 @@ export default function Dashboard() {
       });
       const data = await response.json();
       if (!response.ok) {
+        console.error('API error during 2FA verification:', data.error);
         throw new Error(data.error || 'Failed to verify token.');
       }
       alert('2FA enabled successfully!');
       setIs2FAModalOpen(false);
+      console.log('2FA verified successfully. Closing modal, clearing state, updating session.');
       setTotpCode('');
       setQrCodeDataUrl('');
       await updateSession(true); // Using the single updateSession function
@@ -881,11 +939,13 @@ export default function Dashboard() {
   };
 
   const handleDisable2FA = async () => {
+    console.log('Attempting to disable 2FA.');
     if (!confirm('Are you sure you want to disable Two-Factor Authentication?')) return;
     setIs2FALoading(true);
     setTwoFactorError(null);
     try {
       const response = await fetch('/api/auth/2fa/disable', { method: 'POST' });
+      console.log('Sending POST request to disable 2FA.');
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'Failed to disable 2FA.');
@@ -893,6 +953,7 @@ export default function Dashboard() {
       alert('2FA disabled successfully!');
       await updateSession(true); // Using the single updateSession function
     } catch (error) {
+      console.error('Error disabling 2FA:', error);
       setTwoFactorError(error instanceof Error ? error.message : 'An unknown error occurred.');
       console.error("Error disabling 2FA:", error);
       alert(error instanceof Error ? error.message : 'An unknown error occurred while disabling 2FA.');
@@ -901,6 +962,7 @@ export default function Dashboard() {
     }
   };
 
+  console.log('Rendering Dashboard component.');
 
   if (status === 'loading' || isLoadingPasswords) {
     return (

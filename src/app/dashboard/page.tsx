@@ -811,7 +811,6 @@ export default function Dashboard() {
                  </button>
               )}
             </div>
-            />
             {/* Tag Filter Dropdown */}
             <div className="w-full sm:w-auto md:w-64">
               <select

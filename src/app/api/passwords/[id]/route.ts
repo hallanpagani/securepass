@@ -28,13 +28,6 @@ export async function PUT(
         // For simplicity, the frontend will send all fields when editing, and only isFavorite when toggling.
         // The API will update whatever is provided.
     }
-    
-    if (password !== undefined && password.length < 1 && existingPasswordEntry?.password !== password) {
-      // If a new password is provided and it's empty, reject.
-      // This allows sending undefined for password if not changing it.
-      return NextResponse.json({ error: 'Password cannot be empty if you are attempting to change it.' }, { status: 400 });
-    }
-
 
     const existingPasswordEntry = await prisma.password.findFirst({
       where: {
@@ -45,6 +38,12 @@ export async function PUT(
 
     if (!existingPasswordEntry) {
       return NextResponse.json({ error: 'Password not found or access denied' }, { status: 404 });
+    }
+    
+    // If a password is provided in the request and it's an empty string, it's an error.
+    if (password !== undefined && password.length < 1) {
+      // This allows sending undefined for password if not changing it.
+      return NextResponse.json({ error: 'Password cannot be empty if you are attempting to change it.' }, { status: 400 });
     }
 
     // Archive the current password before updating

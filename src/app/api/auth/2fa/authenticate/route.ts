@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/authOptions'; // Adjusted path
 import prisma from '@/lib/prisma';
 import speakeasy from 'speakeasy';
 import { getToken } from 'next-auth/jwt'; // To access raw JWT
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions); // Gets parsed session, not raw JWT
   const jwtToken = await getToken({ req }); // Gets raw JWT
 

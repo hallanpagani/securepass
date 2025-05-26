@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { encrypt } from '@/lib/encryption';
 import zxcvbn from 'zxcvbn';
 import TwoFactorAuthPrompt from '@/components/TwoFactorAuthPrompt';
-import { useInactivityTimer } from '@/hooks/useInactivityTimer'; // Import the inactivity timer hook
-import InactivityWarningModal from '@/components/InactivityWarningModal'; // Import the modal
+import { useInactivityTimer } from '@/hooks/useInactivityTimer';
+import InactivityWarningModal from '@/components/InactivityWarningModal';
 import { useDataFetching } from '@/hooks/useDataFetching';
-import React from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface Tag {
   id: string;
@@ -271,6 +271,7 @@ export default function Dashboard() {
   const [editingPassword, setEditingPassword] = useState<Password | null>(null);
   const [showPassword, setShowPassword] = useState<{ [key: string]: boolean }>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300); // Debounce search term by 300ms
   const [copiedField, setCopiedField] = useState<{ id: string; field: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
@@ -347,13 +348,25 @@ export default function Dashboard() {
   };
 
 
-  const filteredPasswords = passwords.filter(password => {
-    const titleMatch = password.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const tagMatch = selectedTagsForFilter.length === 0 || 
+  // Use memoized filtering to prevent unnecessary re-renders
+  const filteredPasswords = useMemo(() => {
+    // Ensure we're using passwordsData directly instead of the local passwords state
+    const currentPasswords = passwordsData || [];
+    return currentPasswords.filter(password => {
+      // Filter by search term (debounced)
+      const titleMatch = debouncedSearchTerm ? 
+        password.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+      
+      // Filter by selected tags
+      const tagMatch = selectedTagsForFilter.length === 0 || 
                      (password.tags && password.tags.some(tag => selectedTagsForFilter.includes(tag.id)));
-    const favoriteMatch = !showFavoritesOnly || password.isFavorite;
-    return titleMatch && tagMatch && favoriteMatch;
-  });
+      
+      // Filter by favorites
+      const favoriteMatch = !showFavoritesOnly || password.isFavorite;
+      
+      return titleMatch && tagMatch && favoriteMatch;
+    });
+  }, [passwordsData, debouncedSearchTerm, selectedTagsForFilter, showFavoritesOnly]);
 
   const handleToggleFavorite = async (passwordId: string, currentIsFavorite: boolean) => {
     // Optimistically update UI
@@ -1069,28 +1082,25 @@ export default function Dashboard() {
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
-      ) : passwords.length === 0 && status === 'authenticated' ? (
-        <p className="text-gray-900 dark:text-white">No passwords found. Add one!</p>
+      ) : filteredPasswords.length === 0 && status === 'authenticated' ? (
+        <p className="text-gray-900 dark:text-white">No passwords match your filters. Try adjusting your search or filters.</p>
       ) : (
         <div className="grid gap-4">
-          {useMemo(() => 
-            filteredPasswords.map((password) => (
-              <PasswordCard
-                key={password.id}
-                password={password}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onToggleFavorite={handleToggleFavorite}
-                showPassword={showPassword}
-                togglePasswordVisibility={togglePasswordVisibility}
-                copyToClipboard={copyToClipboard}
-                copiedField={copiedField}
-                isCopying={isCopying}
-                truncateText={truncateText}
-              />
-            )),
-            [filteredPasswords, showPassword, copiedField, isCopying]
-          )}
+          {filteredPasswords.map((password) => (
+            <PasswordCard
+              key={password.id}
+              password={password}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggleFavorite={handleToggleFavorite}
+              showPassword={showPassword}
+              togglePasswordVisibility={togglePasswordVisibility}
+              copyToClipboard={copyToClipboard}
+              copiedField={copiedField}
+              isCopying={isCopying}
+              truncateText={truncateText}
+            />
+          ))}
         </div>
       )}
 
@@ -1481,3 +1491,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

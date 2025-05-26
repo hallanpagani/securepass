@@ -2,13 +2,18 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions'; // Corrected path
 import prisma from '@/lib/prisma';
-import { encrypt, decrypt } from '@/lib/encryption';
+import { encrypt, decrypt, safeDecrypt } from '@/lib/encryption';
 
 export async function GET(request: Request) { // Added request parameter
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) { // Check for user.id
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only check for 2FA if it's enabled
+    if (session.user.isTwoFactorEnabled && session.user.is2FAPending) {
+      return NextResponse.json({ error: 'Please complete 2FA verification' }, { status: 401 });
     }
 
     const passwords = await prisma.password.findMany({
@@ -25,10 +30,22 @@ export async function GET(request: Request) { // Added request parameter
       }
     });
 
-    const decryptedPasswords = passwords.map(password => ({
-      ...password,
-      password: decrypt(password.password),
-    }));
+    const decryptedPasswords = passwords.map(password => {
+      try {
+        return {
+          ...password,
+          password: safeDecrypt(password.password),
+          decryptionError: false
+        };
+      } catch (error) {
+        console.error(`Failed to decrypt password for entry ${password.id}:`, error);
+        return {
+          ...password,
+          password: '[Decryption Failed]',
+          decryptionError: true
+        };
+      }
+    });
 
     return NextResponse.json(decryptedPasswords);
   } catch (error) {
@@ -42,6 +59,11 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) { // Check for user.id
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only check for 2FA if it's enabled
+    if (session.user.isTwoFactorEnabled && session.user.is2FAPending) {
+      return NextResponse.json({ error: 'Please complete 2FA verification' }, { status: 401 });
     }
 
     const { title, username, password, url, tags: tagNames } = await request.json(); // Expect tagNames as an array of strings

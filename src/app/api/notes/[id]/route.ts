@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import prisma from '@/lib/prisma';
-import { encrypt, decrypt } from '@/lib/encryption';
+import { encrypt, decrypt, safeDecrypt } from '@/lib/encryption';
 
 // GET: Fetch a single note by ID
 export async function GET(
@@ -27,13 +27,17 @@ export async function GET(
     }
 
     try {
-      const decryptedContent = decrypt(note.content);
-      return NextResponse.json({ ...note, content: decryptedContent });
+      const decryptedContent = safeDecrypt(note.content);
+      return NextResponse.json({ 
+        ...note, 
+        content: decryptedContent,
+        decryptionError: false
+      });
     } catch (e) {
       console.error(`Failed to decrypt content for note ${note.id}:`, e);
       return NextResponse.json({ 
         ...note, 
-        content: 'Error: Could not decrypt content.',
+        content: '[Decryption Failed]',
         decryptionError: true 
       });
     }
@@ -99,10 +103,11 @@ export async function PUT(
       data: updateData,
     });
     
-    // Return the updated note with decrypted content
+    // Return the updated note with original content
     return NextResponse.json({
         ...updatedNote,
-        content: decrypt(updatedNote.content)
+        content: content, // Return the original unencrypted content
+        decryptionError: false
     });
 
   } catch (error) {

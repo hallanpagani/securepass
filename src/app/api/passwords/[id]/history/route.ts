@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import prisma from '@/lib/prisma';
-import { decrypt } from '@/lib/encryption';
+import { decrypt, safeDecrypt } from '@/lib/encryption';
 
 export async function GET(
   request: Request,
@@ -41,14 +41,14 @@ export async function GET(
       try {
         return {
           ...entry,
-          password: decrypt(entry.encryptedPassword), // Decrypt each historical password
+          password: safeDecrypt(entry.encryptedPassword), // Use safeDecrypt for better error handling
+          decryptionError: false
         };
       } catch (decryptionError) {
         console.error(`Failed to decrypt history entry ${entry.id}:`, decryptionError);
-        // Return the entry with a note about decryption failure, or omit it
         return {
           ...entry,
-          password: 'Error decrypting password',
+          password: '[Decryption Failed]',
           decryptionError: true,
         };
       }

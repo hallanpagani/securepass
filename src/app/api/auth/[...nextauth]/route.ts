@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth"; // Using path alias
+import { authOptions } from "@/lib/authOptions"; // Corrected import path
 
 const handler = NextAuth(authOptions);
 

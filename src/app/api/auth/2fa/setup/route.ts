@@ -18,13 +18,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized: JWT token not found.' }, { status: 401 });
   }
 
-  // Check if 2FA is already enabled
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
-  if (user?.isTwoFactorEnabled) {
-    return NextResponse.json({ error: '2FA is already enabled.' }, { status: 400 });
-  }
-
   try {
+    // Check if 2FA is already enabled - safely handle potential missing field
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { id: session.user.id } });
+      // Only check if the field exists and is true
+      if (user && user.isTwoFactorEnabled === true) {
+        return NextResponse.json({ error: '2FA is already enabled.' }, { status: 400 });
+      }
+    } catch (error) {
+      console.error('Error checking 2FA status:', error);
+      // Continue with setup if there's an error (field might not exist yet)
+    }
+
     const secret = speakeasy.generateSecret({
       name: `SecurePass (${session.user.email})`, // App name and user identifier
       length: 32, // Longer secret for better security

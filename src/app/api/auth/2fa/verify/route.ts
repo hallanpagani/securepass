@@ -28,10 +28,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }
 
+    // Check if 2FA is already enabled - safely handle potential field issues
+    let is2FAEnabled = false;
+    try {
+      is2FAEnabled = user.isTwoFactorEnabled === true;
+    } catch (error) {
+      console.error('Error checking 2FA status:', error);
+      // Proceed as if 2FA is not enabled
+    }
+
     // If 2FA is already enabled, this route should perhaps not be used,
     // or it should behave differently (e.g., for verifying a login attempt).
     // For initial setup, we assume 2FA is not yet enabled.
-    if (user.isTwoFactorEnabled) {
+    if (is2FAEnabled) {
         // This could mean they are trying to re-verify an existing setup.
         // Or, it's an attempt to enable an already enabled 2FA.
         // For simplicity, let's prevent re-enabling if already enabled.
@@ -46,17 +55,22 @@ export async function POST(req: Request) {
     });
 
     if (verified) {
-      // Verification successful, now permanently store the secret and enable 2FA
-      await prisma.user.update({
-        where: { id: userId },
-        data: { 
-          twoFactorSecret: tempSecret, // Store the verified secret
-          isTwoFactorEnabled: true 
-        },
-      });
-      // The session update (isTwoFactorEnabled: true) will be handled by the client
-      // calling updateSession(), which triggers callbacks in authOptions.
-      return NextResponse.json({ success: true, message: '2FA enabled successfully.' });
+      try {
+        // Verification successful, now permanently store the secret and enable 2FA
+        await prisma.user.update({
+          where: { id: userId },
+          data: { 
+            twoFactorSecret: tempSecret, // Store the verified secret
+            isTwoFactorEnabled: true 
+          },
+        });
+        // The session update (isTwoFactorEnabled: true) will be handled by the client
+        // calling updateSession(), which triggers callbacks in authOptions.
+        return NextResponse.json({ success: true, message: '2FA enabled successfully.' });
+      } catch (error) {
+        console.error('Error updating user with 2FA data:', error);
+        return NextResponse.json({ error: 'Failed to enable 2FA. Database update failed.' }, { status: 500 });
+      }
     } else {
       return NextResponse.json({ success: false, error: 'Invalid TOTP token. Please try again.' }, { status: 400 });
     }

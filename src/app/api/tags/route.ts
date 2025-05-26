@@ -10,6 +10,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Only check for 2FA if it's enabled
+  if (session.user.isTwoFactorEnabled && session.user.is2FAPending) {
+    return NextResponse.json({ error: 'Please complete 2FA verification' }, { status: 401 });
+  }
+
   try {
     const tags = await prisma.tag.findMany({
       where: {
@@ -31,6 +36,11 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Only check for 2FA if it's enabled
+  if (session.user.isTwoFactorEnabled && session.user.is2FAPending) {
+    return NextResponse.json({ error: 'Please complete 2FA verification' }, { status: 401 });
   }
 
   try {

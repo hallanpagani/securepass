@@ -28,19 +28,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'TOTP token is required.' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { twoFactorSecret: true, isTwoFactorEnabled: true } 
-    });
+    // Safely get user 2FA data
+    let user;
+    let is2FAEnabled = false;
+    let twoFactorSecret = null;
+    
+    try {
+      user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+      
+      if (user) {
+        is2FAEnabled = user.isTwoFactorEnabled === true;
+        twoFactorSecret = user.twoFactorSecret;
+      }
+    } catch (error) {
+      console.error('Error fetching user 2FA data:', error);
+      return NextResponse.json({ error: 'Error fetching user 2FA configuration.' }, { status: 500 });
+    }
 
-    if (!user || !user.isTwoFactorEnabled || !user.twoFactorSecret) {
+    if (!user) {
+      return NextResponse.json({ error: 'User not found.' }, { status: 404 });
+    }
+
+    if (!is2FAEnabled || !twoFactorSecret) {
       // This case should ideally not be hit if is2FAPending was true,
       // as that implies 2FA is enabled and secret exists.
       return NextResponse.json({ error: '2FA is not properly configured for this user.' }, { status: 400 });
     }
 
     const verified = speakeasy.totp.verify({
-      secret: user.twoFactorSecret,
+      secret: twoFactorSecret,
       encoding: 'base32',
       token: totpToken,
       window: 1, 

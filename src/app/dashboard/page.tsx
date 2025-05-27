@@ -346,6 +346,9 @@ export default function Dashboard() {
   // Tag Filter Dropdown State
   const [isTagFilterDropdownOpen, setIsTagFilterDropdownOpen] = useState(false);
 
+  // URL Copied State
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
+
   // Inactivity Timer State
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
 
@@ -374,6 +377,19 @@ export default function Dashboard() {
     resetInactivityTimer();
   };
 
+  const handleTitleClick = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setIsUrlCopied(true);
+      console.log('Page URL copied to clipboard:', window.location.href);
+      setTimeout(() => {
+        setIsUrlCopied(false);
+      }, 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy URL: ', err);
+      // You could add a user-facing error message here if desired
+    }
+  };
 
   // Use memoized filtering to prevent unnecessary re-renders
   const filteredPasswords = useMemo(() => {
@@ -1015,7 +1031,13 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
           {/* Left Side: Title and Count */}
           <div className="flex items-center gap-3 mb-4 md:mb-0">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SecurePass</h1>
+            <h1 
+              onClick={handleTitleClick}
+              className="text-3xl font-bold text-gray-900 dark:text-white cursor-pointer transition-all duration-150 ease-in-out hover:text-blue-600 dark:hover:text-blue-400"
+              title="Click to copy page URL to share"
+            >
+              {isUrlCopied ? "URL Copied!" : "SecurePass"}
+            </h1>
             <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-sm font-medium px-2.5 py-0.5 rounded-full">
               {filteredPasswords.length} {filteredPasswords.length === 1 ? 'item' : 'items'}
             </span>

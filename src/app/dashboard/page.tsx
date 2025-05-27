@@ -78,7 +78,6 @@ interface PasswordCardProps {
 
 // Create a memoized password card component to prevent unnecessary re-renders
 const PasswordCard = React.memo(({ 
- console.log('Rendering PasswordCard for:', password.id, password.title);
   password, 
   onEdit, 
   onDelete, 
@@ -90,99 +89,46 @@ const PasswordCard = React.memo(({
   isCopying,
   truncateText
 }: PasswordCardProps) => {
+  console.log('Rendering PasswordCard for:', password.id, password.title);
   return (
-    <div key={password.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div className="w-full">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{truncateText(password.title)}</h3>
-            <button 
-              onClick={() => onToggleFavorite(password.id, !!password.isFavorite)}
-              title={password.isFavorite ? "Remove from favorites" : "Add to favorites"}
-              className="p-1 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 focus:outline-none"
-            >
-              {password.isFavorite ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-yellow-500">
-                  <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.116 3.552.975 5.32c.193 1.052-.932 1.86-1.926 1.304L12 18.354l-4.573 2.482c-.994.556-2.119-.252-1.926-1.304l.974-5.32-4.117-3.552c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.82.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.82-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                </svg>
-              )}
-            </button>
-          </div>
-          {/* Username section */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-gray-800 dark:text-gray-200">Username: {truncateText(password.username.trim())}</p>
-            <button
-              onClick={() => copyToClipboard(password.username.trim(), password.id, 'username')}
-              disabled={isCopying?.id === password.id && isCopying?.field === 'username'}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
-            >
-              {isCopying?.id === password.id && isCopying?.field === 'username' ? (
-                <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
-              ) : copiedField?.id === password.id && copiedField?.field === 'username' ? (
-                <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                  </svg>
-                  Copy
-                </>
-              )}
-            </button>
-          </div>
-          {/* Password section */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-gray-800 dark:text-gray-200">Password: </p>
-            <span className="text-gray-800 dark:text-gray-200 break-all">
-              {showPassword[password.id] ? password.password : '••••••••'}
-            </span>
-            <button
-              onClick={() => togglePasswordVisibility(password.id)}
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm"
-            >
-              {showPassword[password.id] ? 'Hide' : 'Show'}
-            </button>
-            {showPassword[password.id] && (
-              <button
-                onClick={() => copyToClipboard(password.password, password.id, 'password')}
-                disabled={isCopying?.id === password.id && isCopying?.field === 'password'}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
-              >
-                {isCopying?.id === password.id && isCopying?.field === 'password' ? (
-                  <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
-                ) : copiedField?.id === password.id && copiedField?.field === 'password' ? (
-                  <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
-                ) : (
-                  <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                    </svg>
-                    Copy
-                  </>
-                )}
-              </button>
+    <div key={password.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow h-full flex flex-col">
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white break-words pr-2">{truncateText(password.title)}</h3>
+          <button 
+            onClick={() => onToggleFavorite(password.id, !!password.isFavorite)}
+            title={password.isFavorite ? "Remove from favorites" : "Add to favorites"}
+            className="p-1 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 focus:outline-none flex-shrink-0"
+          >
+            {password.isFavorite ? (
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-yellow-500">
+                <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.116 3.552.975 5.32c.193 1.052-.932 1.86-1.926 1.304L12 18.354l-4.573 2.482c-.994.556-2.119-.252-1.926-1.304l.974-5.32-4.117-3.552c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.82.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.82-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+              </svg>
             )}
-          </div>
-          {/* URL section - if exists */}
-          {password.url && password.url.trim() !== '' && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-gray-800 dark:text-gray-200">URL: {truncateText(password.url)}</p>
+          </button>
+        </div>
+        
+        <div className="grow space-y-2">
+          {/* Username section */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Username:</p>
               <button
-                onClick={() => copyToClipboard(password.url, password.id, 'url')}
-                disabled={isCopying?.id === password.id && isCopying?.field === 'url'}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm flex items-center gap-1 disabled:opacity-50"
+                onClick={() => copyToClipboard(password.username.trim(), password.id, 'username')}
+                disabled={isCopying?.id === password.id && isCopying?.field === 'username'}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs flex items-center gap-1 disabled:opacity-50"
               >
-                {isCopying?.id === password.id && isCopying?.field === 'url' ? (
-                  <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
-                ) : copiedField?.id === password.id && copiedField?.field === 'url' ? (
-                  <span className="text-green-500 dark:text-green-400">✓ Copied!</span>
+                {isCopying?.id === password.id && isCopying?.field === 'username' ? (
+                  <div className="animate-spin h-3 w-3 border-b-2 border-blue-500 rounded-full"></div>
+                ) : copiedField?.id === password.id && copiedField?.field === 'username' ? (
+                  <span className="text-green-500 dark:text-green-400">✓ Copied</span>
                 ) : (
                   <>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
                     Copy
@@ -190,19 +136,89 @@ const PasswordCard = React.memo(({
                 )}
               </button>
             </div>
-          )}
-          {/* Display Tags */}
-          {password.tags && password.tags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {password.tags.map(tag => (
-                <span key={tag.id} className="px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                  {tag.name}
-                </span>
-              ))}
+            <p className="text-gray-800 dark:text-gray-200 text-sm break-all">{truncateText(password.username.trim())}</p>
+          </div>
+          
+          {/* Password section */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Password:</p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => togglePasswordVisibility(password.id)}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs"
+                >
+                  {showPassword[password.id] ? 'Hide' : 'Show'}
+                </button>
+                {showPassword[password.id] && (
+                  <button
+                    onClick={() => copyToClipboard(password.password, password.id, 'password')}
+                    disabled={isCopying?.id === password.id && isCopying?.field === 'password'}
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs flex items-center gap-1 disabled:opacity-50"
+                  >
+                    {isCopying?.id === password.id && isCopying?.field === 'password' ? (
+                      <div className="animate-spin h-3 w-3 border-b-2 border-blue-500 rounded-full"></div>
+                    ) : copiedField?.id === password.id && copiedField?.field === 'password' ? (
+                      <span className="text-green-500 dark:text-green-400">✓ Copied</span>
+                    ) : (
+                      <>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="text-gray-800 dark:text-gray-200 text-sm break-all font-mono">
+              {showPassword[password.id] ? password.password : '••••••••'}
+            </p>
+          </div>
+          
+          {/* URL section - if exists */}
+          {password.url && password.url.trim() !== '' && (
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">URL:</p>
+                <button
+                  onClick={() => copyToClipboard(password.url, password.id, 'url')}
+                  disabled={isCopying?.id === password.id && isCopying?.field === 'url'}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-xs flex items-center gap-1 disabled:opacity-50"
+                >
+                  {isCopying?.id === password.id && isCopying?.field === 'url' ? (
+                    <div className="animate-spin h-3 w-3 border-b-2 border-blue-500 rounded-full"></div>
+                  ) : copiedField?.id === password.id && copiedField?.field === 'url' ? (
+                    <span className="text-green-500 dark:text-green-400">✓ Copied</span>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-gray-800 dark:text-gray-200 text-sm break-all">{truncateText(password.url)}</p>
             </div>
           )}
         </div>
-        <div className="flex gap-2 self-end sm:self-start">
+        
+        {/* Display Tags */}
+        {password.tags && password.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1">
+            {password.tags.map(tag => (
+              <span key={tag.id} className="px-2 py-0.5 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        {/* Action buttons */}
+        <div className="flex gap-2 mt-4 justify-end">
           <button
             onClick={() => onEdit(password)}
             className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 px-3 py-1 border border-blue-500 dark:border-blue-400 rounded hover:bg-blue-50 dark:hover:bg-blue-900/50"
@@ -226,32 +242,41 @@ PasswordCard.displayName = 'PasswordCard';
 export default function Dashboard() {
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
-  console.log('Dashboard component rendered. Session status:', status, 'User:', session?.user?.name);
   
+  // Put all initial console logs here at the start of the component
+  console.log('Dashboard component rendered. Session status:', status);
+  
+  // Memoize onError callbacks
+  const handlePasswordsError = useCallback((error: Error) => {
+    console.log('useDataFetching hook called for passwords.');
+    console.error('Error fetching passwords:', error);
+    // Handle 401 errors by redirecting to 2FA if needed
+    // Ensure all dependencies of this callback are listed: session, status, router
+    if (status === 'authenticated' && session?.user?.isTwoFactorEnabled) {
+      router.push('/auth/2fa');
+    }
+  }, [status, session, router]);
+
+  const handleTagsError = useCallback((error: Error) => {
+    console.log('useDataFetching hook called for tags.');
+    console.error('Error fetching tags:', error);
+  }, []); // Empty dependency array if the callback doesn't use external scope variables
+
   // Use the data fetching hook instead of direct fetch calls
   const { 
     data: passwordsData, 
     isLoading: isLoadingPasswords, 
     refetch: refetchPasswords 
   } = useDataFetching<Password[]>('/api/passwords', {
-    console.log('useDataFetching hook called for passwords.');
-    // Only fetch when fully authenticated
-    onError: (error) => {
-      console.error('Error fetching passwords:', error);
-      // Handle 401 errors by redirecting to 2FA if needed
-      if (status === 'authenticated' && session?.user?.isTwoFactorEnabled) {
-        router.push('/auth/2fa');
-      }
-    }
+    onError: handlePasswordsError
   });
   
   const { 
     data: tagsData, 
-    refetch: refetchTags 
- console.log('useDataFetching hook called for tags.');
+    refetch: refetchTags,
+    isLoading: isLoadingTags // Assuming you might need this
   } = useDataFetching<Tag[]>('/api/tags', {
-    // Only fetch when fully authenticated
-    onError: (error) => console.error('Error fetching tags:', error)
+    onError: handleTagsError
   });
   
   // Local state that uses the fetched data
@@ -260,16 +285,16 @@ export default function Dashboard() {
   
   // Update local state when API data changes
   useEffect(() => {
-    if (passwordsData) {
-      console.log('passwordsData updated. Setting passwords state:', passwordsData.length, 'items');
-      setPasswords(passwordsData);
+    if (passwordsData !== null) {  // Changed from if (passwordsData) to handle empty arrays
+      console.log('passwordsData updated. Setting passwords state:', passwordsData ? passwordsData.length : 0, 'items, data:', passwordsData);
+      setPasswords(passwordsData || []);
     }
   }, [passwordsData]);
   
   useEffect(() => {
-    console.log('tagsData updated. Setting allTags state:', tagsData?.length, 'items');
-    if (tagsData) {
-      setAllTags(tagsData);
+    console.log('tagsData updated. Setting allTags state:', tagsData ? tagsData.length : 0, 'items, data:', tagsData);
+    if (tagsData !== null) {  // Changed from if (tagsData) to handle empty arrays
+      setAllTags(tagsData || []);
     }
   }, [tagsData]);
   
@@ -294,17 +319,8 @@ export default function Dashboard() {
   const [passwordStrength, setPasswordStrength] = useState<{ score: number; feedback: string[] }>({ score: 0, feedback: [] });
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // 2FA States
-  const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
-  const [qrCodeDataUrl, setQrCodeDataUrl] = useState('');
-  const [totpCode, setTotpCode] = useState('');
-  const [is2FALoading, setIs2FALoading] = useState(false);
-  const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
-  const { data: updatedSession } = useSession(); // Remove the duplicate updateSession
-
   // Prioritize updatedSession if available, otherwise fall back to initial session data
-  const isTwoFactorEnabled = updatedSession?.user?.isTwoFactorEnabled ?? session?.user?.isTwoFactorEnabled ?? false;
-  const is2FAPending = updatedSession?.user?.is2FAPending ?? session?.user?.is2FAPending ?? false;
+  const is2FAPending = session?.user?.is2FAPending ?? false;
 
   // Password Generation States
   const [showPasswordOptions, setShowPasswordOptions] = useState(false);
@@ -327,6 +343,8 @@ export default function Dashboard() {
   // Favorite Filter State
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
+  // Tag Filter Dropdown State
+  const [isTagFilterDropdownOpen, setIsTagFilterDropdownOpen] = useState(false);
 
   // Inactivity Timer State
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
@@ -345,9 +363,11 @@ export default function Dashboard() {
   const { resetTimers: resetInactivityTimer } = useInactivityTimer({
     onWarning: handleWarning,
     onIdle: handleIdle,
- console.log('useInactivityTimer hook initialized.');
     isTimerActive: isTimerCurrentlyActive, 
   });
+
+  // Add console.log after hook initialization
+  console.log('useInactivityTimer hook initialized.');
 
   const handleStayLoggedIn = () => {
     setShowInactivityWarning(false);
@@ -357,9 +377,15 @@ export default function Dashboard() {
 
   // Use memoized filtering to prevent unnecessary re-renders
   const filteredPasswords = useMemo(() => {
-    console.log('Memoizing filtered passwords. searchTerm:', debouncedSearchTerm, 'selectedTags:', selectedTagsForFilter, 'showFavoritesOnly:', showFavoritesOnly, 'passwordsData:', passwordsData?.length);
-    // Ensure we're using passwordsData directly instead of the local passwords state
-    const currentPasswords = passwordsData || [];
+    console.log('Memoizing filtered passwords. searchTerm:', debouncedSearchTerm, 'selectedTags:', selectedTagsForFilter, 'showFavoritesOnly:', showFavoritesOnly, 'passwords state length:', passwords.length);
+    // Use the local 'passwords' state which reflects optimistic updates
+    const currentPasswords = passwords || [];
+    
+    if (currentPasswords.length === 0) {
+      console.log('No passwords available to filter');
+      return [];
+    }
+    
     return currentPasswords.filter(password => {
       // Filter by search term (debounced)
       const titleMatch = debouncedSearchTerm ? 
@@ -374,7 +400,7 @@ export default function Dashboard() {
       
       return titleMatch && tagMatch && favoriteMatch;
     });
-  }, [passwordsData, debouncedSearchTerm, selectedTagsForFilter, showFavoritesOnly]);
+  }, [passwords, debouncedSearchTerm, selectedTagsForFilter, showFavoritesOnly]);
 
   const handleToggleFavorite = async (passwordId: string, currentIsFavorite: boolean) => {
     console.log('handleToggleFavorite called for passwordId:', passwordId, 'currentIsFavorite:', currentIsFavorite);
@@ -425,7 +451,7 @@ export default function Dashboard() {
   const fetchPasswords = useCallback(async () => {
     console.log('fetchPasswords called.');
     if (isLoadingPasswords) return; // Don't fetch if already loading
-    await refetchPasswords();
+    await refetchPasswords(); // This already forces a refresh
   }, [isLoadingPasswords, refetchPasswords]);
   
   const fetchAllTags = useCallback(async () => {
@@ -462,6 +488,19 @@ export default function Dashboard() {
       session?.user?.is2FAPending, isLoadingPasswords, passwordsData, 
       tagsData, fetchPasswords, fetchAllTags]);
   console.log('Dashboard useEffect dependencies updated.');
+
+  // Add a timeout to prevent getting stuck in loading state
+  useEffect(() => {
+    if (isLoadingPasswords) {
+      const timeoutId = setTimeout(() => {
+        console.log('Loading timeout reached, forcing UI update');
+        // Force display content even if loading is still true
+        setPasswords([]); // Set empty array if data loading takes too long
+      }, 5000); // 5 seconds timeout
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoadingPasswords]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -514,6 +553,19 @@ export default function Dashboard() {
 
       if (response.ok) {
         console.log('Password saved successfully.');
+        const newPasswordData = await response.json();
+        
+        // Update local state immediately for better UX
+        if (editingPassword) {
+          // For updates, replace the existing password in the local state
+          setPasswords(prevPasswords => 
+            prevPasswords.map(p => p.id === editingPassword.id ? newPasswordData : p)
+          );
+        } else {
+          // For new passwords, add to the beginning of the list
+          setPasswords(prevPasswords => [newPasswordData, ...prevPasswords]);
+        }
+        
         setIsModalOpen(false);
         setEditingPassword(null);
         setFormData({ title: '', username: '', password: '', url: '' }); // Reset form
@@ -542,8 +594,10 @@ export default function Dashboard() {
           method: 'DELETE',
         });
         if (response.ok) {
-          fetchPasswords();
-          console.log('Password deleted successfully, refetching list.');
+          // Update UI immediately
+          setPasswords(prevPasswords => prevPasswords.filter(p => p.id !== id));
+          console.log('Password deleted successfully, removing from UI.');
+          fetchPasswords(); // Still fetch in background to ensure sync with server
         } else {
           console.error('Error deleting password: Response not OK', response);
           const errorData = await response.json();
@@ -884,90 +938,14 @@ export default function Dashboard() {
     console.log('Generated password applied to form.');
   };
 
-  const handleEnable2FASetup = async () => {
-    console.log('Attempting to enable 2FA setup.');
-    setIs2FALoading(true);
-    setTwoFactorError(null);
-    setQrCodeDataUrl(''); // Clear previous QR code
-    setTotpCode(''); // Clear previous TOTP code
-    try {
-      const response = await fetch('/api/auth/2fa/setup', { method: 'POST' });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('API error during 2FA setup:', data.error);
-        throw new Error(data.error || 'Failed to start 2FA setup.');
-      }
-      console.log('2FA setup successful, QR code data received.');
-      setQrCodeDataUrl(data.qrCodeDataUrl);
-      setIs2FAModalOpen(true); // Open modal after getting QR code
-    } catch (error) {
-      setTwoFactorError(error instanceof Error ? error.message : 'An unknown error occurred.');
-      console.error("Error enabling 2FA setup:", error);
-    } finally {
-      setIs2FALoading(false);
-    }
-  };
-
-  const handleVerify2FAToken = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Attempting to verify 2FA token.');
-    setIs2FALoading(true);
-    setTwoFactorError(null);
-    try {
-      const response = await fetch('/api/auth/2fa/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: totpCode }), 
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        console.error('API error during 2FA verification:', data.error);
-        throw new Error(data.error || 'Failed to verify token.');
-      }
-      alert('2FA enabled successfully!');
-      setIs2FAModalOpen(false);
-      console.log('2FA verified successfully. Closing modal, clearing state, updating session.');
-      setTotpCode('');
-      setQrCodeDataUrl('');
-      await updateSession(true); // Using the single updateSession function
-    } catch (error) {
-      setTwoFactorError(error instanceof Error ? error.message : 'An unknown error occurred. Ensure the code is correct and try again.');
-      console.error("Error verifying 2FA token:", error);
-    } finally {
-      setIs2FALoading(false);
-    }
-  };
-
-  const handleDisable2FA = async () => {
-    console.log('Attempting to disable 2FA.');
-    if (!confirm('Are you sure you want to disable Two-Factor Authentication?')) return;
-    setIs2FALoading(true);
-    setTwoFactorError(null);
-    try {
-      const response = await fetch('/api/auth/2fa/disable', { method: 'POST' });
-      console.log('Sending POST request to disable 2FA.');
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to disable 2FA.');
-      }
-      alert('2FA disabled successfully!');
-      await updateSession(true); // Using the single updateSession function
-    } catch (error) {
-      console.error('Error disabling 2FA:', error);
-      setTwoFactorError(error instanceof Error ? error.message : 'An unknown error occurred.');
-      console.error("Error disabling 2FA:", error);
-      alert(error instanceof Error ? error.message : 'An unknown error occurred while disabling 2FA.');
-    } finally {
-      setIs2FALoading(false);
-    }
-  };
-
   console.log('Rendering Dashboard component.');
 
-  if (status === 'loading' || isLoadingPasswords) {
+  // Only show loading state when status is loading or when we're actively fetching but don't have data yet
+  if (status === 'loading' || (isLoadingPasswords && passwordsData === null)) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="ml-3 text-gray-700 dark:text-gray-300">Loading passwords...</div>
       </div>
     );
   }
@@ -978,8 +956,6 @@ export default function Dashboard() {
   }
   
   // If authenticated and 2FA is NOT pending, show the main dashboard
-  // (Implicitly, if status === 'unauthenticated', the useEffect would have redirected)
-  // So, if we reach here and status is 'authenticated', it means 2FA is not pending.
   if (status === 'authenticated' && !is2FAPending) {
     return (
       <> {/* Use Fragment to allow multiple top-level elements including the modal */}
@@ -1036,63 +1012,90 @@ export default function Dashboard() {
             Logout
           </button>
         </div>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">SecurePass</h1>
-            <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-sm font-medium px-2.5 py-0.5 rounded">
-              {filteredPasswords.length} {filteredPasswords.length === 1 ? 'password' : 'passwords'}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+          {/* Left Side: Title and Count */}
+          <div className="flex items-center gap-3 mb-4 md:mb-0">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">SecurePass</h1>
+            <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-sm font-medium px-2.5 py-0.5 rounded-full">
+              {filteredPasswords.length} {filteredPasswords.length === 1 ? 'item' : 'items'}
             </span>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+
+          {/* Right Side: Controls - flex-wrap for responsiveness */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             <input
               type="text"
               placeholder="Search by title..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-auto md:w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              className="w-full sm:w-auto md:w-56 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             />
-            {/* Tag Filter Dropdown */}
-            <div className="w-full sm:w-auto md:w-64">
-              <select
-                multiple
-                value={selectedTagsForFilter}
-                onChange={(e) => setSelectedTagsForFilter(Array.from(e.target.selectedOptions, option => option.value))}
-                className="block w-full h-10 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                title="Filter by tags (Ctrl/Cmd + click for multiple)"
+
+            {/* Improved Tag Filter Dropdown */}
+            <div className="relative w-full sm:w-auto">
+              <button
+                onClick={() => setIsTagFilterDropdownOpen(!isTagFilterDropdownOpen)}
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white flex items-center justify-between"
               >
-                {allTags.map(tag => (
-                  <option key={tag.id} value={tag.id}>{tag.name}</option>
-                ))}
-              </select>
-              {selectedTagsForFilter.length > 0 && (
-                 <button 
-                    onClick={() => setSelectedTagsForFilter([])} 
-                    className="text-xs text-blue-500 hover:underline mt-1"
-                 >
-                    Clear tag filter
-                 </button>
+                <span className="truncate max-w-[150px]">
+                  {selectedTagsForFilter.length > 0 
+                    ? `Tags: ${selectedTagsForFilter.map(tagId => allTags.find(t => t.id === tagId)?.name).filter(Boolean).join(', ')}` 
+                    : "Filter by Tags"}
+                </span>
+                <svg className={`w-4 h-4 ml-2 transition-transform duration-200 ${isTagFilterDropdownOpen ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              {isTagFilterDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full sm:w-64 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {allTags.length > 0 ? (
+                    allTags.map(tag => (
+                      <label key={tag.id} className="flex items-center px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedTagsForFilter.includes(tag.id)}
+                          onChange={() => {
+                            setSelectedTagsForFilter(prev => 
+                              prev.includes(tag.id) 
+                                ? prev.filter(id => id !== tag.id) 
+                                : [...prev, tag.id]
+                            );
+                          }}
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">{tag.name}</span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">No tags available</p>
+                  )}
+                  {allTags.length > 0 && selectedTagsForFilter.length > 0 && (
+                     <button 
+                        onClick={() => {setSelectedTagsForFilter([]); setIsTagFilterDropdownOpen(false);}} 
+                        className="w-full text-left px-4 py-2 text-xs text-blue-500 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-700 border-t border-gray-200 dark:border-gray-700"
+                      >
+                        Clear All Filters
+                      </button>
+                  )}
+                </div>
               )}
             </div>
-             {/* Favorites Filter Toggle */}
-            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end sm:justify-start">
+            
+            {/* Favorites Filter Toggle */}
+            <div className="flex items-center space-x-2 w-full sm:w-auto sm:justify-start">
               <label htmlFor="favorites-toggle" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Show Favorites Only
+                Favorites Only
               </label>
               <button
                 type="button"
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={`${
-                  showFavoritesOnly ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
-                } relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+                className={`${showFavoritesOnly ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}
+                 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
                 role="switch"
                 aria-checked={showFavoritesOnly}
               >
                 <span
                   aria-hidden="true"
-                  className={`${
-                    showFavoritesOnly ? 'translate-x-5' : 'translate-x-0'
-                  } inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
+                  className={`${showFavoritesOnly ? 'translate-x-5' : 'translate-x-0'}
+                   inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
                 />
               </button>
             </div>
@@ -1106,48 +1109,33 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 2FA Management Section */}
-      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Two-Factor Authentication (2FA)</h2>
-        {twoFactorError && !is2FAModalOpen && <p className="text-red-500 dark:text-red-400 text-sm mb-3">{twoFactorError}</p>}
-        {isTwoFactorEnabled ? (
-          <div>
-            <p className="text-green-600 dark:text-green-400 mb-3">2FA is currently enabled.</p>
-            <button
-              onClick={handleDisable2FA}
-              disabled={is2FALoading}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
-            >
-              {is2FALoading && <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>}
-              Disable 2FA
-            </button>
-          </div>
-        ) : (
-          <div>
-            <p className="text-gray-700 dark:text-gray-300 mb-3">Enhance your account security by enabling 2FA.</p>
-            <button
-              onClick={handleEnable2FASetup}
-              disabled={is2FALoading}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-2"
-            >
-              {is2FALoading && !is2FAModalOpen && <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>}
-              Enable 2FA
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Password List Section Header (if you want to group it) */}
-      {/* <h2 className="text-xl font-semibold text-gray-900 dark:text-white my-6">Your Passwords</h2> */}
-      
-      {isLoadingPasswords ? (
+      {/* Password List Section */}
+      {isLoadingPasswords && !passwordsData ? (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
-      ) : filteredPasswords.length === 0 && status === 'authenticated' ? (
-        <p className="text-gray-900 dark:text-white">No passwords match your filters. Try adjusting your search or filters.</p>
+      ) : filteredPasswords.length === 0 ? (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            {passwordsData && passwordsData.length > 0 
+              ? "No passwords match your filters. Try adjusting your search or filters."
+              : "You don't have any passwords yet. Click 'Add New Password' to get started."}
+          </p>
+          <button
+            onClick={handleOpenModal}
+            className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Your First Password
+          </button>
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredPasswords.map((password) => (
             <PasswordCard
               key={password.id}
@@ -1311,28 +1299,12 @@ export default function Dashboard() {
                   <div className="mt-2">
                     <div className="h-2 w-full bg-gray-200 dark:bg-gray-600 rounded">
                       <div
-                        className={`h-2 rounded ${
-                          passwordStrength.score === 0 ? 'bg-red-500' :
-                          passwordStrength.score === 1 ? 'bg-red-500' :
-                          passwordStrength.score === 2 ? 'bg-yellow-500' :
-                          passwordStrength.score === 3 ? 'bg-green-500' :
-                          'bg-green-500' // Score 4
-                        }`}
+                        className={`h-2 rounded ${passwordStrength.score === 0 ? 'bg-red-500' : passwordStrength.score === 1 ? 'bg-red-500' : passwordStrength.score === 2 ? 'bg-yellow-500' : passwordStrength.score === 3 ? 'bg-green-500' : 'bg-green-500'}`}
                         style={{ width: `${(passwordStrength.score / 4) * 100}%` }}
                       ></div>
                     </div>
-                    <p className={`text-xs mt-1 ${
-                      passwordStrength.score <= 1 ? 'text-red-500' :
-                      passwordStrength.score === 2 ? 'text-yellow-500' :
-                      'text-green-500'
-                    }`}>
-                      Strength: {
-                        passwordStrength.score === 0 ? 'Very Weak' :
-                        passwordStrength.score === 1 ? 'Weak' :
-                        passwordStrength.score === 2 ? 'Medium' :
-                        passwordStrength.score === 3 ? 'Strong' :
-                        'Very Strong'
-                      }
+                    <p className={`text-xs mt-1 ${passwordStrength.score <= 1 ? 'text-red-500' : passwordStrength.score === 2 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      Strength: {passwordStrength.score === 0 ? 'Very Weak' : passwordStrength.score === 1 ? 'Weak' : passwordStrength.score === 2 ? 'Medium' : passwordStrength.score === 3 ? 'Strong' : 'Very Strong'}
                     </p>
                     {passwordStrength.feedback.length > 0 && (
                       <ul className="text-xs text-gray-500 dark:text-gray-400 list-disc pl-5 mt-1">
@@ -1456,80 +1428,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* 2FA Setup Modal */}
-      {is2FAModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50"> {/* Higher z-index */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md text-center">
-            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Enable Two-Factor Authentication</h2>
-            {twoFactorError && <p className="text-red-500 dark:text-red-400 text-sm mb-3">{twoFactorError}</p>}
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
-              Scan the QR code below with your authenticator app (e.g., Google Authenticator, Authy).
-            </p>
-            {is2FALoading && !qrCodeDataUrl ? ( 
-                <div className="flex justify-center items-center h-40 my-4"> {/* Placeholder for QR code loading */}
-                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-                </div>
-            ) : qrCodeDataUrl ? (
-              <img src={qrCodeDataUrl} alt="QR Code for 2FA" className="mx-auto my-4 border dark:border-gray-600" />
-            ) : (
-              // This state (no QR code and not loading) should ideally not be reached if setup API call is made first
-              <p className="text-gray-500 dark:text-gray-400 my-4">QR Code will appear here.</p> 
-            )}
-            <p className="text-gray-700 dark:text-gray-300 mb-2">
-              Then, enter the 6-digit code from your app to verify and complete setup.
-            </p>
-            <form onSubmit={handleVerify2FAToken} className="space-y-4 mt-4">
-              <div>
-                <label htmlFor="totp-code" className="block text-sm font-medium text-gray-700 dark:text-gray-300 sr-only">Verification Code</label>
-                <input
-                  id="totp-code"
-                  type="text"
-                  value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value.replace(/\s/g, ''))} // Remove spaces
-                  className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-center text-lg tracking-wider"
-                  placeholder="123456"
-                  required
-                  maxLength={6}
-                  minLength={6}
-                  pattern="\d{6}"
-                  title="Enter a 6-digit code"
-                  disabled={is2FALoading}
-                  autoComplete="one-time-code"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIs2FAModalOpen(false); 
-                    setQrCodeDataUrl(''); 
-                    setTotpCode(''); 
-                    setTwoFactorError(null);
-                  }}
-                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
-                  disabled={is2FALoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center gap-2 w-36" // Fixed width
-                  disabled={is2FALoading || !totpCode || totpCode.length !== 6}
-                >
-                  {is2FALoading ? (
-                     <>
-                       <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
-                       Verifying...
-                     </>
-                  ) : (
-                    'Verify & Enable'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        )}
         </div>
         <InactivityWarningModal
           isOpen={showInactivityWarning}

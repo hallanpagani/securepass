@@ -13,15 +13,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -35,18 +34,18 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  passwords     Password[]
-  twoFactorSecret String?
-  isTwoFactorEnabled Boolean? @default(false)
-  createdTags        Tag[] // Relation to tags created by the user
-  secureNotes        SecureNote[] // Relation to secure notes
+  id                 String       @id @default(cuid())
+  name               String?
+  email              String?      @unique
+  emailVerified      DateTime?
+  image              String?
+  isTwoFactorEnabled Boolean?     @default(false)
+  twoFactorSecret    String?
+  accounts           Account[]
+  passwords          Password[]
+  secureNotes        SecureNote[]
+  sessions           Session[]
+  createdTags        Tag[]
 }
 
 model VerificationToken {
@@ -58,23 +57,23 @@ model VerificationToken {
 }
 
 model Password {
-  id        String   @id @default(cuid())
-  title     String
-  username  String
-  password  String
-  url       String?
+  id          String            @id @default(cuid())
+  title       String
+  username    String
+  password    String
+  url         String?
   description String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  history   PasswordHistory[] @relation("PasswordHistoryEntries") // Relation to password history entries
-  tags      Tag[]             @relation("PasswordTags")       // Explicitly named relation
-  isFavorite Boolean          @default(false)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  userId      String
+  isFavorite  Boolean           @default(false)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history     PasswordHistory[] @relation("PasswordHistoryEntries")
+  tags        Tag[]             @relation("PasswordTags")
 
   @@index([userId])
-  @@index([userId, isFavorite]) // For querying/sorting favorites
-  @@index([userId, createdAt])  // Suggested new index
+  @@index([userId, isFavorite])
+  @@index([userId, createdAt])
 }
 
 model Tag {
@@ -82,33 +81,32 @@ model Tag {
   name      String
   userId    String
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  passwords Password[] @relation("PasswordTags") // Explicitly named relation
+  passwords Password[] @relation("PasswordTags")
 
-  @@unique([userId, name]) // Ensure tag names are unique per user
+  @@unique([userId, name])
   @@index([userId])
 }
 
 model PasswordHistory {
   id                String   @id @default(cuid())
   passwordEntryId   String
-  encryptedPassword String   // Stores the password as it was at that point in time
-  createdAt         DateTime @default(now()) // Timestamp of when this history record was created
-
-  password Password @relation("PasswordHistoryEntries", fields: [passwordEntryId], references: [id], onDelete: Cascade)
+  encryptedPassword String
+  createdAt         DateTime @default(now())
+  password          Password @relation("PasswordHistoryEntries", fields: [passwordEntryId], references: [id], onDelete: Cascade)
 
   @@index([passwordEntryId])
-  @@index([passwordEntryId, createdAt]) // Suggested new index
+  @@index([passwordEntryId, createdAt])
 }
 
 model SecureNote {
   id        String   @id @default(cuid())
   title     String?
-  content   String   // Encrypted content
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([userId, updatedAt]) // Suggested new index
+  @@index([userId, updatedAt])
 }

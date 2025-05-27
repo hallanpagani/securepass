@@ -6,48 +6,73 @@ import { encrypt, decrypt, safeDecrypt } from '@/lib/encryption';
 
 export async function GET(request: Request) { // Added request parameter
   try {
+    console.log('Password API: GET request received');
+    
+    // Debug database connection
+    try {
+      console.log('Password API: Testing database connection...');
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('Password API: Database connection successful');
+    } catch (dbError) {
+      console.error('Password API: Database connection failed:', dbError);
+      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
+    }
+    
     const session = await getServerSession(authOptions);
+    console.log('Password API: Session retrieved:', !!session);
+    
     if (!session?.user?.id) { // Check for user.id
+      console.log('Password API: No user ID found in session');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    console.log('Password API: User ID found:', session.user.id);
 
     // Only check for 2FA if it's enabled
     if (session.user.isTwoFactorEnabled && session.user.is2FAPending) {
+      console.log('Password API: 2FA pending, rejecting request');
       return NextResponse.json({ error: 'Please complete 2FA verification' }, { status: 401 });
     }
 
-    const passwords = await prisma.password.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        tags: { // Include tags in the response
-          select: { id: true, name: true } // Select only necessary fields from Tag
-        } 
-      }
-    });
+    console.log('Password API: Fetching passwords for user:', session.user.id);
+    try {
+      const passwords = await prisma.password.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          tags: { // Include tags in the response
+            select: { id: true, name: true } // Select only necessary fields from Tag
+          } 
+        }
+      });
+      console.log('Password API: Found passwords count:', passwords.length);
 
-    const decryptedPasswords = passwords.map(password => {
-      try {
-        return {
-          ...password,
-          password: safeDecrypt(password.password),
-          decryptionError: false
-        };
-      } catch (error) {
-        console.error(`Failed to decrypt password for entry ${password.id}:`, error);
-        return {
-          ...password,
-          password: '[Decryption Failed]',
-          decryptionError: true
-        };
-      }
-    });
+      const decryptedPasswords = passwords.map(password => {
+        try {
+          return {
+            ...password,
+            password: safeDecrypt(password.password),
+            decryptionError: false
+          };
+        } catch (error) {
+          console.error(`Failed to decrypt password for entry ${password.id}:`, error);
+          return {
+            ...password,
+            password: '[Decryption Failed]',
+            decryptionError: true
+          };
+        }
+      });
 
-    return NextResponse.json(decryptedPasswords);
+      console.log('Password API: Returning decrypted passwords count:', decryptedPasswords.length);
+      return NextResponse.json(decryptedPasswords);
+    } catch (queryError) {
+      console.error('Password API: Error in database query:', queryError);
+      return NextResponse.json({ error: 'Database query failed' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Error fetching passwords:', error);
     return NextResponse.json({ error: 'Internal Server Error while fetching passwords.' }, { status: 500 });
